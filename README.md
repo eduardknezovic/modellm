@@ -48,6 +48,7 @@ class StoryForChildren(Story):
 text: str = "A story about a boy who wanted to be a hero"
 short_children_story: Story = text | StoryForChildren | ThreeSentenceStory
 
+print(short_children_story)
 ```
 
 

@@ -14,7 +14,7 @@ claude_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 @add_llm(llm)
 class Story(BaseModel):
     """
-    A short 3 sentence story.
+    A story. 
     """
 
     title: str
@@ -27,15 +27,6 @@ class StoryForChildren(Story):
     """
     pass
 
-@add_llm(claude_llm)
-class GrimEndingStory(Story):
-    """
-    A story with a grim ending.
-
-    An extremely tragic ending, leaves people sad.
-    """
-    pass
-
 @add_llm(llm)
 class ThreeSentenceStory(Story):
     """
@@ -45,7 +36,7 @@ class ThreeSentenceStory(Story):
 
 
 def execute_workflow(text: str):
-    story = text | Story | GrimEndingStory | ThreeSentenceStory
+    story = text | Story | StoryForChildren | ThreeSentenceStory
     return story
 
 def test_story():

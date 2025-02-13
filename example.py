@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 
-from factory import add_llm
+from modellm import add_llm
 
 # TODO: load variables from .env
 
@@ -46,6 +46,7 @@ class ThreeSentenceStory(Story):
 
 def execute_workflow(text: str):
     story = text | Story | GrimEndingStory | ThreeSentenceStory
+    return story
 
 def test_story():
     text = "The story of the boy who wanted to be a hero"

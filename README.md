@@ -93,13 +93,13 @@ print(healthy_simple_recipe)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. 
+Contributions are welcome! Feel free to submit a pull request!
 
 For major changes, please open an issue first to discuss what you would like to change.
 
 ## Acknowledgments
 
-- Built on top of Pydantic and LangChain
+- Built on top of [Pydantic](https://github.com/pydantic/pydantic) and [LangChain](https://github.com/langchain-ai/langchain)
 - Inspired by the Eric S. Raymond's [Art of Unix Programming](http://www.catb.org/~esr/writings/taoup/html/)
 
 ## License

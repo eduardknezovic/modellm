@@ -1,28 +1,31 @@
+
 # ModeLLM
 
 [![PyPI version](https://badge.fury.io/py/modellm.svg)](https://badge.fury.io/py/modellm)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+> "Controlling complexity is the essence of computer programming."  
+> — Brian Kernighan
+
 ## Overview
 
-ModeLLM allows you to create AI workflows simply 
-by defining and chaining Pydantic models. 
+Build AI workflows in Python quickly and efficiently with ModeLLM.
 
-This allows you to build quickly and evolve gracefully, 
-since your data model is the single source of truth of the workflow.
+ModeLLM slashes the complexity of building AI workflows in Python
+by making your Pydantic data models the single source of truth.
+
+After your Pydantic data models are well defined, simply chain them:
 
 ```python
-# AI workflows get created by chaining the Pydantic models!
-output: PydanticModel2 = input_str | PydanticModel1 | PydanticModel2
-print(output)
+output: YourPydanticModel2 = input_data | YourPydanticModel1 | YourPydanticModel2
 ```
 
-## Features
+## More Benefits
 
-- **Pydantic-First**: Use Python's type system to define your LLM outputs
-- **Chain Transformations**: Pipe output through multiple models seamlessly
-- **Multiple LLM Support**: Works with OpenAI, Anthropic, and other LangChain providers
-- **Prompt Engineering in Docstrings**: Define your prompts naturally in Python docstrings
+- **Prompts as Documentation**: Keep prompts and code together by writing prompts in Pydantic docstrings, making them easy to understand, maintain and version control
+- **Self-Documenting Workflows**: Understand the entire pipeline at a glance through clear model chains
+- **Production-Ready Design**: Built on battle-tested libraries like Pydantic and LangChain
+- **Rapid Prototyping and Maintenance**: Iterate quickly by swapping models and transformations with minimal code changes. 
 
 ## Installation
 
@@ -30,7 +33,14 @@ print(output)
 pip install modellm
 ```
 
-You will need to add your OPENAI_API_KEY or ANTHROPIC_API_KEY to your environment variables.
+ModeLLM requires Python 3.9+. All required dependencies (pydantic, langchain) will be installed automatically.
+
+Currently, ModeLLM supports the following LangChain LLM providers:
+- ChatOpenAI
+- ChatAnthropic
+
+To use them, you will need to add your 
+OPENAI_API_KEY and/or ANTHROPIC_API_KEY to your environment variables.
 
 ## Quick Start
 
@@ -42,7 +52,7 @@ from modellm import add_llm
 from langchain_openai import ChatOpenAI
 
 # Set up your LLM
-llm = ChatOpenAI(model="gpt-4o-mini")
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
 
 @add_llm(llm)
 class Recipe(BaseModel):
@@ -67,47 +77,34 @@ ModeLLM supports complex transformation chains and multiple LLM providers:
 ```python
 # Continuing from the previous example
 
-class HealthyRecipe(Recipe): # LLM is inherited from the Recipe
-    """Recipe with minimal calories and maximal nutrients.""" 
+claude_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0.2)
+
+@add_llm(claude_llm) # Add a different LLM to this model
+class SimplifiedRecipe(Recipe):
+    """Simplified recipe with more basic, everyday ingredients"""
     pass
 
-@add_llm(claude_llm) # We're using a different LLM here
-class SimplifiedRecipe(HealthyRecipe):
-    """Simplified recipe with more basic, everyday ingredients"""
+class HealthyRecipe(Recipe): # OpenAI LLM is inherited from the Recipe
+    """Recipe with minimal calories and maximal nutrients.""" 
     pass
 
 # Chain transformations
 healthy_simple_recipe: Recipe = recipe | HealthyRecipe | SimplifiedRecipe
 print(healthy_simple_recipe)
 ```
+
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please feel free to submit a Pull Request. 
+
+For major changes, please open an issue first to discuss what you would like to change.
+
+## Acknowledgments
+
+- Built on top of Pydantic and LangChain
+- Inspired by the Eric S. Raymond's [Art of Unix Programming](http://www.catb.org/~esr/writings/taoup/html/)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Citation
-
-If you use ModeLLM in your research, please cite:
-
-```bibtex
-@software{modellm_2025,
-  author = {[Eduard Knezovic]},
-  title = {ModeLLM: A Minimalist LLM Modeling Library},
-  year = {2025},
-  publisher = {eduardknezovic},
-  url = {https://github.com/eduardknezovic/modellm}
-}
-```
-
-## Acknowledgments
-
-- Built on top of Pydantic and LangChain
-- Inspired by the functional programming paradigm
-- Thanks to the open source AI community
-
----
-
-*"Make it as simple as possible, but not simpler." - Albert Einstein*

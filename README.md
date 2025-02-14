@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 > "Controlling complexity is the essence of computer programming."  
-> — Brian Kernighan
+> Brian Kernighan
 
 ## Overview
 

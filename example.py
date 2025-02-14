@@ -12,37 +12,49 @@ llm = ChatOpenAI(model="gpt-4o-mini")
 claude_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 
 @add_llm(llm)
-class Story(BaseModel):
+class Recipe(BaseModel):
     """
-    A story. 
+    A cooking recipe.
     """
-
-    title: str
-    content: str
+    name: str
+    ingredients: list[str]
+    instructions: list[str]
+    cooking_time: str
 
 @add_llm(claude_llm)
-class StoryForChildren(Story):
+class HealthyRecipe(Recipe):
     """
-    A short 3 sentence story for children.
+    Recipe with minimal calories and maximal nutrients.
+    """
+    pass
+
+@add_llm(claude_llm)
+class DeliciousRecipe(Recipe):
+    """
+    The recipe with the most flavor.
+
+    This one is made for the taste buds.
     """
     pass
 
 @add_llm(llm)
-class ThreeSentenceStory(Story):
+class SimplifiedRecipe(Recipe):
     """
-    A story with 3 sentences.
+    A simplified version of the recipe with 5 ingredients or less.
+
+    Easy to follow and easy to prepare.
     """
-    pass
+    difficulty_level: str
 
 
-def execute_workflow(text: str):
-    story = text | Story | StoryForChildren | ThreeSentenceStory
-    return story
+def test_recipe():
+    text = "Fish and chips"
+    recipe = text | Recipe
+    healthy_simple_recipe = recipe | HealthyRecipe | SimplifiedRecipe
+    print(healthy_simple_recipe)
+    delicious_simple_recipe = recipe | DeliciousRecipe | SimplifiedRecipe
+    print(delicious_simple_recipe)
 
-def test_story():
-    text = "The story of the boy who wanted to be a hero"
-    story = execute_workflow(text)
-    print(story)
 
 if __name__ == "__main__":
-    test_story()
+    test_recipe()

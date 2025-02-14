@@ -9,17 +9,25 @@ A minimalist LLM modeling library.
 pip install modellm
 ```
 
-## Usage
+## Quick start
+
+You will need to add your OPENAI_API_KEY or ANTHROPIC_API_KEY to your environment variables.
+
 
 ```python
 from modellm import add_llm
 
 from langchain_openai import ChatOpenAI
 
-llm = ChatOpenAI(model="gpt-4o-mini")
+# You will need to add your OPENAI_API_KEY or ANTHROPIC_API_KEY to your environment variables, or simply uncomment and set them here.
+# import os
+# os.environ["OPENAI_API_KEY"] = "sk-..."
+# os.environ["ANTHROPIC_API_KEY"] = "sk-ant-api03-..."
+
+openai_llm = ChatOpenAI(model="gpt-4o-mini")
 claude_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 
-@add_llm(llm)
+@add_llm(openai_llm)
 class Story(BaseModel):
     """
     A story.
@@ -28,7 +36,7 @@ class Story(BaseModel):
     title: str
     content: str
 
-# LLM model is inherited from the base model (Story)
+# OpenAI LLM model is inherited from the base model (Story)
 class ThreeSentenceStory(Story):
     """
     Story written in 3 sentences.

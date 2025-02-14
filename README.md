@@ -3,20 +3,16 @@
 [![PyPI version](https://badge.fury.io/py/modellm.svg)](https://badge.fury.io/py/modellm)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-> "Bad programmers worry about the code. Good programmers worry about data structures and their relationships." - *Linus Torvalds*
-
 ## Overview
 
-ModeLLM allows you to create AI workflows by simply chaining Pydantic models. 
+ModeLLM allows you to create AI workflows simply 
+by defining and chaining Pydantic models. 
 
-The purpose of this library is to keep our attention on what matters:
-the data model and the relationships between the data.
-
-When we change the data model, the flow gets updated automatically, 
-making our code simple to understand and maintain.
+This allows you to build quickly and evolve gracefully, 
+since your data model is the single source of truth of the workflow.
 
 ```python
-# Create AI workflows simply by chaining Pydantic models!
+# AI workflows get created by chaining the Pydantic models!
 output: PydanticModel2 = input_str | PydanticModel1 | PydanticModel2
 print(output)
 ```

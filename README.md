@@ -1,6 +1,32 @@
 # ModeLLM
 
-A minimalist LLM modeling library.
+[![PyPI version](https://badge.fury.io/py/modellm.svg)](https://badge.fury.io/py/modellm)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+> "Bad programmers worry about the code. Good programmers worry about data structures and their relationships." - *Linus Torvalds*
+
+## Overview
+
+ModeLLM allows you to create AI workflows by simply chaining Pydantic models. 
+
+The purpose of this library is to keep our attention on what matters:
+the data model and the relationships between the data.
+
+When we change the data model, the flow gets updated automatically, 
+making our code simple to understand and maintain.
+
+```python
+# Create AI workflows simply by chaining Pydantic models!
+output: PydanticModel2 = input_str | PydanticModel1 | PydanticModel2
+print(output)
+```
+
+## Features
+
+- **Pydantic-First**: Use Python's type system to define your LLM outputs
+- **Chain Transformations**: Pipe output through multiple models seamlessly
+- **Multiple LLM Support**: Works with OpenAI, Anthropic, and other LangChain providers
+- **Prompt Engineering in Docstrings**: Define your prompts naturally in Python docstrings
 
 ## Installation
 
@@ -8,24 +34,19 @@ A minimalist LLM modeling library.
 pip install modellm
 ```
 
-## Quick start
-
 You will need to add your OPENAI_API_KEY or ANTHROPIC_API_KEY to your environment variables.
 
+## Quick Start
+
+Here's a minimal example to get you started:
 
 ```python
 from pydantic import BaseModel
 from modellm import add_llm
 from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
 
-# You will need to add your OPENAI_API_KEY or ANTHROPIC_API_KEY to your environment variables, or simply uncomment and set them here.
-# import os
-# os.environ["OPENAI_API_KEY"] = "sk-..."
-# os.environ["ANTHROPIC_API_KEY"] = "sk-ant-api03-..."
-
+# Set up your LLM
 llm = ChatOpenAI(model="gpt-4o-mini")
-claude_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 
 @add_llm(llm)
 class Recipe(BaseModel):
@@ -37,39 +58,60 @@ class Recipe(BaseModel):
     instructions: list[str]
     cooking_time: str
 
-# OpenAI LLM model is inherited from the base model (Recipe)
-@add_llm(claude_llm)
-class HealthyRecipe(Recipe):
-    """
-    Recipe with minimal calories and maximal nutrients.
-    """
-    pass
-
-@add_llm(claude_llm) # We can pick a different llm for a specific model
-class DeliciousRecipe(Recipe):
-    """
-    The recipe with the most flavor.
-    """
-    pass
-
-@add_llm(llm)
-class SimplifiedRecipe(Recipe):
-    """
-    A simplified version of the recipe with 5 ingredients or less.
-    """
-    difficulty_level: str
-
-# Basic recipe transformation
+# Generate a recipe
 text = "Fish and chips"
 recipe = text | Recipe
-
-# Chain multiple transformations
-# result = input_str_or_base_model | pydantic_model1 | pydantic_model2
-healthy_simple_recipe = recipe | HealthyRecipe | SimplifiedRecipe
-delicious_simple_recipe = recipe | DeliciousRecipe | SimplifiedRecipe
-
-print(healthy_simple_recipe)
-print(delicious_simple_recipe)
+print(recipe)
 ```
 
+## Detailed Usage
 
+ModeLLM supports complex transformation chains and multiple LLM providers:
+
+```python
+# Continuing from the previous example
+
+class HealthyRecipe(Recipe): # LLM is inherited from the Recipe
+    """Recipe with minimal calories and maximal nutrients.""" 
+    pass
+
+@add_llm(claude_llm) # We're using a different LLM here
+class SimplifiedRecipe(HealthyRecipe):
+    """Simplified recipe with more basic, everyday ingredients"""
+    pass
+
+# Chain transformations
+healthy_simple_recipe: Recipe = recipe | HealthyRecipe | SimplifiedRecipe
+print(healthy_simple_recipe)
+```
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Citation
+
+If you use ModeLLM in your research, please cite:
+
+```bibtex
+@software{modellm_2025,
+  author = {[Eduard Knezovic]},
+  title = {ModeLLM: A Minimalist LLM Modeling Library},
+  year = {2025},
+  publisher = {eduardknezovic},
+  url = {https://github.com/eduardknezovic/modellm}
+}
+```
+
+## Acknowledgments
+
+- Built on top of Pydantic and LangChain
+- Inspired by the functional programming paradigm
+- Thanks to the open source AI community
+
+---
+
+*"Make it as simple as possible, but not simpler." - Albert Einstein*

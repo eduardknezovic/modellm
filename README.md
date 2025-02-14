@@ -4,15 +4,13 @@
 [![PyPI version](https://badge.fury.io/py/modellm.svg)](https://badge.fury.io/py/modellm)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-> "Controlling complexity is the essence of computer programming."  
-> Brian Kernighan
+_"Controlling complexity is the essence of computer programming."_ 
 
 ## Overview
 
 ModeLLM is here to make your AI workflows dead simple to build and maintain.
 
-ModeLLM slashes the complexity of building AI workflows in Python
-by making your Pydantic data models the single source of truth.
+Your Pydantic data models become the single source of truth in your workflows.
 
 After your Pydantic data models are well defined, simply chain them:
 
@@ -23,8 +21,8 @@ output: YourPydanticModel2 = input_data | YourPydanticModel1 | YourPydanticModel
 
 ## More Benefits
 
-- **Prompts as Documentation**: Keep prompts and code together by writing prompts in Pydantic docstrings, making them easy to understand, maintain and version control
-- **Self-Documenting Workflows**: Understand the entire pipeline at a glance through clear model chains
+- **Prompts as Documentation**: Keep prompts and code together by writing prompts in Pydantic docstrings, making them easy to understand for both humans and LLMs 
+- **Self-Documenting Workflows**: Understand the entire pipeline at a glance through clear model definitions and model chains
 - **Production-Ready Design**: Built on battle-tested libraries like Pydantic and LangChain
 - **Rapid Prototyping and Maintenance**: Iterate quickly by swapping models and transformations with minimal code changes. 
 

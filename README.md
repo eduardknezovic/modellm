@@ -10,12 +10,11 @@ _"Controlling complexity is the essence of computer programming."_
 
 ModeLLM is here to make your AI workflows dead simple to build and maintain.
 
-Your Pydantic data models become the single source of truth in your workflows.
+Your Pydantic data models become the single source of truth.
 
-After your Pydantic data models are well defined, simply chain them:
+Once the data models are well defined, you can create the workflow in a single line of code:
 
 ```python
-# Your AI workflow in single line of code
 output: YourPydanticModel2 = input_data | YourPydanticModel1 | YourPydanticModel2
 ```
 

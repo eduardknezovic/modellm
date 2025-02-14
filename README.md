@@ -9,7 +9,7 @@
 
 ## Overview
 
-Build AI workflows in Python quickly and efficiently with ModeLLM.
+ModeLLM is here to make your AI workflows dead simple to build and maintain.
 
 ModeLLM slashes the complexity of building AI workflows in Python
 by making your Pydantic data models the single source of truth.
@@ -17,6 +17,7 @@ by making your Pydantic data models the single source of truth.
 After your Pydantic data models are well defined, simply chain them:
 
 ```python
+# Your AI workflow in single line of code
 output: YourPydanticModel2 = input_data | YourPydanticModel1 | YourPydanticModel2
 ```
 

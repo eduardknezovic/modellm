@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "modellm"
-version = "0.1.1"
+version = "0.1.2"
 description = "A minimalist LLM modeling library"
 readme = "README.md"
 authors = [
     {name = "Eduard Knezovic", email = "knezovic.eduard@gmail.com"},
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",

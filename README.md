@@ -31,7 +31,7 @@ output: YourPydanticModel2 = input_data | YourPydanticModel1 | YourPydanticModel
 pip install modellm
 ```
 
-ModeLLM requires Python 3.9+. All required dependencies (pydantic, langchain) will be installed automatically.
+ModeLLM requires Python 3.10+. All required dependencies (pydantic, langchain) will be installed automatically.
 
 Currently, ModeLLM supports the following LangChain LLM providers:
 - ChatOpenAI

@@ -70,6 +70,15 @@ def add_llm(llm: BaseChatModel) -> Callable[[Type[BaseModel]], Type[BaseModel]]:
     def decorator(cls: Type[BaseModel]) -> Type[BaseModel]:
         class AushaMeta(type(cls)):
             """Metaclass that implements the pipe operator for LLM processing."""
+
+            def generate_from(cls, input_data: InputT) -> OutputT:
+                """Generates output from input data."""
+                agent_function = _get_agent_function(
+                    str if isinstance(input_data, str) else type(input_data),
+                    cls, 
+                    llm
+                )
+                return agent_function(input_data)
             
             def __ror__(cls, other: InputT) -> OutputT:
                 """Implements the right pipe operator (input | Model)."""

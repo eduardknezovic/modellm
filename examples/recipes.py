@@ -7,9 +7,11 @@ from modellm import add_llm
 
 # TODO: load variables from .env
 
+openai_model="gpt-4o-mini"
+anthropic_model="claude-haiku-4-5-20251001"
 
-llm = ChatOpenAI(model="gpt-4o-mini")
-claude_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
+llm = ChatOpenAI(model=openai_model)
+claude_llm = ChatAnthropic(model=anthropic_model)
 
 @add_llm(llm)
 class Recipe(BaseModel):
@@ -49,10 +51,10 @@ class SimplifiedRecipe(Recipe):
 
 def test_recipe():
     text = "Fish and chips"
-    recipe = text | Recipe
-    healthy_simple_recipe = recipe | HealthyRecipe | SimplifiedRecipe
+    recipe = Recipe.generate_from(text)
+    healthy_simple_recipe = HealthyRecipe.generate_from(recipe)
     print(healthy_simple_recipe)
-    delicious_simple_recipe = recipe | DeliciousRecipe | SimplifiedRecipe
+    delicious_simple_recipe = DeliciousRecipe.generate_from(healthy_simple_recipe)
     print(delicious_simple_recipe)
 
 

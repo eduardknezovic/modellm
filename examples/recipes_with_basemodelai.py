@@ -56,11 +56,54 @@ class SimplifiedRecipe(BaseModelAI(llm)):
 
 def test_recipe():
     text = "Fish and chips"
-    # generate_from should glow in your IDE! ✨
+    
+    # Simple usage - generate_from should glow in your IDE! ✨
     recipe: Recipe = Recipe.generate_from(text)
-    healthy_simple_recipe: HealthyRecipe = HealthyRecipe.generate_from(recipe)
+    print("=== Basic Recipe ===")
+    print(recipe)
+    print()
+    
+    recipe_with_system: Recipe = Recipe.generate_from(
+        "Chocolate cake",
+    )
+    print("=== Recipe with string input only ===")
+    print(recipe_with_system)
+    print()
+    
+    # With extra guidance - add additional instructions to the input
+    recipe_with_guidance: Recipe = Recipe.generate_from(
+        "Pasta carbonara",
+        extra_guidance="Make it authentic Italian style. Use only 5 ingredients."
+    )
+    print("=== Recipe with Extra Guidance ===")
+    print(recipe_with_guidance)
+    print()
+    
+    # With both prompts - full control
+    recipe_full_control: Recipe = Recipe.generate_from(
+        "Vegetable stir fry",
+        system_prompt="You are a health-conscious chef specializing in quick meals.",
+        extra_guidance="Keep cooking time under 15 minutes. Use common pantry items."
+    )
+    print("=== Recipe with Both Prompts ===")
+    print(recipe_full_control)
+    print()
+    
+    # Chaining models with extra guidance
+    healthy_simple_recipe: HealthyRecipe = HealthyRecipe.generate_from(
+        recipe,
+        extra_guidance="Reduce calories by at least 30%. Maintain great taste."
+    )
+    print("=== Healthy Recipe (from basic recipe) ===")
     print(healthy_simple_recipe)
-    delicious_simple_recipe: DeliciousRecipe = DeliciousRecipe.generate_from(healthy_simple_recipe)
+    print()
+    
+    delicious_simple_recipe: DeliciousRecipe = DeliciousRecipe.generate_from(
+        healthy_simple_recipe,
+        system_prompt="You are a Michelin-star chef focused on maximum flavor.",
+        extra_guidance="Enhance the taste while keeping it healthy."
+    )
+    print("=== Delicious Recipe (from healthy recipe) ===")
     print(delicious_simple_recipe)
 
 

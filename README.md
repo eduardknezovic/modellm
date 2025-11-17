@@ -115,6 +115,51 @@ print(recipe)
 
 The decorator style works great for the pipe operator pattern!
 
+## Controlling LLM Behavior with Prompts
+
+ModeLLM gives you fine-grained control over LLM behavior through optional prompt parameters:
+
+```python
+from modellm import BaseModelAI
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+class Recipe(BaseModelAI(llm)):
+    """A cooking recipe."""
+    name: str
+    ingredients: list[str]
+    instructions: list[str]
+    cooking_time: str
+
+# Simple usage - docstring guides the LLM
+recipe = Recipe.generate_from("chocolate cake")
+
+# Add system prompt for behavioral instructions
+recipe = Recipe.generate_from(
+    "chocolate cake",
+    system_prompt="You are a professional pastry chef with 20 years of experience."
+)
+
+# Add extra guidance for additional constraints
+recipe = Recipe.generate_from(
+    "chocolate cake",
+    extra_guidance="Make it gluten-free and suitable for beginners."
+)
+
+# Combine both for full control
+recipe = Recipe.generate_from(
+    "chocolate cake",
+    system_prompt="You are a health-conscious chef.",
+    extra_guidance="Use natural sweeteners only. Keep it under 30 minutes."
+)
+```
+
+**How it works:**
+- **Docstring** → Describes the schema (sent automatically via API's structured output)
+- **`system_prompt`** → Defines the LLM's role/behavior (optional)
+- **`extra_guidance`** → Adds specific constraints to your input (optional)
+
 ## Detailed Usage
 
 ModeLLM supports complex transformation chains and multiple LLM providers:
@@ -157,6 +202,21 @@ class SimplifiedRecipe(BaseModelAI(gpt4)):
 recipe = Recipe.generate_from("Fish and chips")
 healthy = HealthyRecipe.generate_from(recipe)
 simple = SimplifiedRecipe.generate_from(healthy)
+
+# With extra guidance at each step
+recipe = Recipe.generate_from(
+    "Fish and chips",
+    extra_guidance="Use authentic British ingredients."
+)
+healthy = HealthyRecipe.generate_from(
+    recipe,
+    extra_guidance="Reduce calories by at least 30%."
+)
+simple = SimplifiedRecipe.generate_from(
+    healthy,
+    system_prompt="You are a chef specializing in easy weeknight meals.",
+    extra_guidance="Use only 5 ingredients maximum."
+)
 
 # Pipe operator (functional)
 simple = "Fish and chips" | Recipe | HealthyRecipe | SimplifiedRecipe

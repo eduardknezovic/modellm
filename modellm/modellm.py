@@ -7,8 +7,9 @@ structured inputs and outputs using Pydantic data models and the pipe operator.
 """
 
 from pydantic import BaseModel
-from typing import List, Union, Callable, ClassVar, TypeVar, Generic, Type
+from typing import List, Union, Callable, ClassVar, TypeVar, Generic, Type, Optional
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import SystemMessage, HumanMessage
 
 InputT = TypeVar('InputT', bound=Union[str, BaseModel])
 OutputT = TypeVar('OutputT', bound=BaseModel)
@@ -58,7 +59,12 @@ def BaseModelAI(llm: BaseChatModel):
         """Base model class with LLM generation capabilities."""
         
         @classmethod
-        def generate_from(cls: Type[T], input_data: Union[str, BaseModel]) -> T:
+        def generate_from(
+            cls: Type[T], 
+            input_data: Union[str, BaseModel],
+            system_prompt: Optional[str] = None,
+            extra_guidance: Optional[str] = None
+        ) -> T:
             """
             Generate a structured instance from input using the configured LLM.
             
@@ -67,6 +73,8 @@ def BaseModelAI(llm: BaseChatModel):
             
             Args:
                 input_data: String prompt or Pydantic model instance to process
+                system_prompt: Optional system message for behavioral instructions
+                extra_guidance: Optional additional guidance appended to input
                 
             Returns:
                 Instance of this model with LLM-generated data
@@ -76,20 +84,40 @@ def BaseModelAI(llm: BaseChatModel):
                 
             Example:
                 recipe = Recipe.generate_from("Make a chocolate cake recipe")
-                # Or chain models:
-                healthy = HealthyRecipe.generate_from(recipe)
+                # With system prompt:
+                recipe = Recipe.generate_from(
+                    "chocolate cake",
+                    system_prompt="You are a professional pastry chef."
+                )
+                # With extra guidance:
+                recipe = Recipe.generate_from(
+                    "chocolate cake",
+                    extra_guidance="Make it gluten-free and under 30 minutes."
+                )
             """
             # Configure LLM with structured output for this model
             structured_llm = llm.with_structured_output(cls)
             
-            # Prepare input data
+            # Prepare base content
             if isinstance(input_data, BaseModel):
-                input_data = input_data.model_dump_json()
-            elif not isinstance(input_data, str):
+                content = input_data.model_dump_json()
+            elif isinstance(input_data, str):
+                content = input_data
+            else:
                 raise ValueError("Input must be a string or Pydantic model instance")
             
+            # Append extra guidance if provided
+            if extra_guidance:
+                content = f"{content}\n\n{extra_guidance}"
+            
+            # Build messages
+            messages = []
+            if system_prompt:
+                messages.append(SystemMessage(content=system_prompt))
+            messages.append(HumanMessage(content=content))
+            
             # Invoke LLM and return structured output
-            return structured_llm.invoke(input_data)
+            return structured_llm.invoke(messages)
     
     return _BaseModelAI
 
@@ -97,6 +125,8 @@ def _get_agent_function(
     input_model: Union[Type[BaseModel], Type[str]],
     output_model: Type[BaseModel],
     llm: BaseChatModel,
+    system_prompt: Optional[str] = None,
+    extra_guidance: Optional[str] = None,
 ) -> Callable[[InputT], OutputT]:
     """
     Creates an agent function that processes input through an LLM and returns structured output.
@@ -105,11 +135,13 @@ def _get_agent_function(
         input_model: The expected input type (either str or a Pydantic model)
         output_model: The Pydantic model class for structured output
         llm: The language model to use for processing
+        system_prompt: Optional system message for behavioral instructions
+        extra_guidance: Optional additional guidance appended to input
 
     Returns:
         A callable that takes input_model and returns output_model
     """
-    llm = llm.with_structured_output(output_model)
+    structured_llm = llm.with_structured_output(output_model)
     
     def run_llm(input_data: InputT) -> OutputT:
         """
@@ -129,11 +161,24 @@ def _get_agent_function(
                 raise ValueError("Input must be a string")
         elif not isinstance(input_data, input_model):
             raise ValueError(f"Input must be an instance of {input_model}")
-            
+        
+        # Prepare base content
         if isinstance(input_data, BaseModel):
-            input_data = input_data.model_dump_json()
-            
-        return llm.invoke(input_data)
+            content = input_data.model_dump_json()
+        else:
+            content = input_data
+        
+        # Append extra guidance if provided
+        if extra_guidance:
+            content = f"{content}\n\n{extra_guidance}"
+        
+        # Build messages
+        messages = []
+        if system_prompt:
+            messages.append(SystemMessage(content=system_prompt))
+        messages.append(HumanMessage(content=content))
+        
+        return structured_llm.invoke(messages)
         
     return run_llm
 
@@ -165,7 +210,12 @@ def add_llm(llm: BaseChatModel) -> Callable[[Type[BaseModel]], Type[BaseModel]]:
             """A wrapper class that adds LLM processing capabilities to the original model."""
             
             @classmethod
-            def generate_from(cls, input_data: Union[str, BaseModel]) -> BaseModel:
+            def generate_from(
+                cls, 
+                input_data: Union[str, BaseModel],
+                system_prompt: Optional[str] = None,
+                extra_guidance: Optional[str] = None
+            ) -> BaseModel:
                 """
                 Generate a structured instance from input using the configured LLM.
                 
@@ -175,6 +225,8 @@ def add_llm(llm: BaseChatModel) -> Callable[[Type[BaseModel]], Type[BaseModel]]:
                 
                 Args:
                     input_data: String prompt or Pydantic model instance
+                    system_prompt: Optional system message for behavioral instructions
+                    extra_guidance: Optional additional guidance appended to input
                     
                 Returns:
                     Instance of this model with LLM-generated data
@@ -182,7 +234,9 @@ def add_llm(llm: BaseChatModel) -> Callable[[Type[BaseModel]], Type[BaseModel]]:
                 agent_function = _get_agent_function(
                     str if isinstance(input_data, str) else type(input_data),
                     cls, 
-                    llm
+                    llm,
+                    system_prompt=system_prompt,
+                    extra_guidance=extra_guidance
                 )
                 return agent_function(input_data)
 

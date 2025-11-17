@@ -12,6 +12,86 @@ from langchain_core.language_models.chat_models import BaseChatModel
 
 InputT = TypeVar('InputT', bound=Union[str, BaseModel])
 OutputT = TypeVar('OutputT', bound=BaseModel)
+T = TypeVar('T', bound=BaseModel)
+
+
+def BaseModelAI(llm: BaseChatModel):
+    """
+    Factory function that returns a Pydantic BaseModel configured with LLM capabilities.
+    
+    This follows established Python patterns like Generic[T] and provides a clean,
+    explicit way to create AI-powered models.
+    
+    Args:
+        llm: The language model to use for generating structured outputs
+        
+    Returns:
+        A base class with generate_from() method for LLM-powered generation
+        
+    Example:
+        from modellm import BaseModelAI
+        from langchain_openai import ChatOpenAI
+        
+        llm = ChatOpenAI(model="gpt-4")
+        
+        class Recipe(BaseModelAI(llm)):
+            name: str
+            ingredients: list[str]
+            instructions: list[str]
+        
+        # Generate structured output - this will GLOW in your IDE! ✨
+        recipe = Recipe.generate_from("chocolate chip cookies")
+        
+        # Pipe operator also works
+        recipe = "chocolate chip cookies" | Recipe
+    """
+    
+    # Create a metaclass that supports the pipe operator
+    class _AIModelMeta(type(BaseModel)):
+        """Metaclass that enables pipe operator for AI models."""
+        
+        def __ror__(cls, other: Union[str, BaseModel]):
+            """Implements the right pipe operator (input | Model)."""
+            return cls.generate_from(other)
+    
+    class _BaseModelAI(BaseModel, metaclass=_AIModelMeta):
+        """Base model class with LLM generation capabilities."""
+        
+        @classmethod
+        def generate_from(cls: Type[T], input_data: Union[str, BaseModel]) -> T:
+            """
+            Generate a structured instance from input using the configured LLM.
+            
+            This method processes the input through the LLM and returns a validated
+            instance of this model with structured output.
+            
+            Args:
+                input_data: String prompt or Pydantic model instance to process
+                
+            Returns:
+                Instance of this model with LLM-generated data
+                
+            Raises:
+                ValueError: If input type is invalid
+                
+            Example:
+                recipe = Recipe.generate_from("Make a chocolate cake recipe")
+                # Or chain models:
+                healthy = HealthyRecipe.generate_from(recipe)
+            """
+            # Configure LLM with structured output for this model
+            structured_llm = llm.with_structured_output(cls)
+            
+            # Prepare input data
+            if isinstance(input_data, BaseModel):
+                input_data = input_data.model_dump_json()
+            elif not isinstance(input_data, str):
+                raise ValueError("Input must be a string or Pydantic model instance")
+            
+            # Invoke LLM and return structured output
+            return structured_llm.invoke(input_data)
+    
+    return _BaseModelAI
 
 def _get_agent_function(
     input_model: Union[Type[BaseModel], Type[str]],
@@ -70,15 +150,6 @@ def add_llm(llm: BaseChatModel) -> Callable[[Type[BaseModel]], Type[BaseModel]]:
     def decorator(cls: Type[BaseModel]) -> Type[BaseModel]:
         class AushaMeta(type(cls)):
             """Metaclass that implements the pipe operator for LLM processing."""
-
-            def generate_from(cls, input_data: InputT) -> OutputT:
-                """Generates output from input data."""
-                agent_function = _get_agent_function(
-                    str if isinstance(input_data, str) else type(input_data),
-                    cls, 
-                    llm
-                )
-                return agent_function(input_data)
             
             def __ror__(cls, other: InputT) -> OutputT:
                 """Implements the right pipe operator (input | Model)."""
@@ -92,7 +163,28 @@ def add_llm(llm: BaseChatModel) -> Callable[[Type[BaseModel]], Type[BaseModel]]:
         # Create new class with our metaclass
         class WrappedClass(cls, metaclass=AushaMeta):
             """A wrapper class that adds LLM processing capabilities to the original model."""
-            pass
+            
+            @classmethod
+            def generate_from(cls, input_data: Union[str, BaseModel]) -> BaseModel:
+                """
+                Generate a structured instance from input using the configured LLM.
+                
+                This is an alternative to the pipe operator syntax.
+                Instead of: input | MyModel
+                You can use: MyModel.generate_from(input)
+                
+                Args:
+                    input_data: String prompt or Pydantic model instance
+                    
+                Returns:
+                    Instance of this model with LLM-generated data
+                """
+                agent_function = _get_agent_function(
+                    str if isinstance(input_data, str) else type(input_data),
+                    cls, 
+                    llm
+                )
+                return agent_function(input_data)
 
         # Preserve the original class metadata
         WrappedClass.__name__ = cls.__name__
